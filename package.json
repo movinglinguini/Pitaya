@@ -1,0 +1,20 @@
+{
+  "name": "pitaya",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "rollup --config rollup.config.mjs --watch",
+    "build": "rollup --config rollup.config.mjs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "LAG1996",
+  "license": "ISC",
+  "dependencies": {
+    "pixi.js": "^7.1.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^24.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.1"
+  }
+}
