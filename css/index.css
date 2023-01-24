@@ -3,6 +3,24 @@
   width: fit-content;
 }
 
+.cp-app {
+  background-color: transparent !important;
+}
+
 .cp-exit {
+  display: none;
+}
+
+.cp-app .hsl-mode,
+.cp-app .hsv-h-butt,
+.cp-app .hsv-s-butt,
+.cp-app .hsv-v-butt,
+.cp-app .cp-rgb,
+.cp-app .cp-cmyk,
+.cp-app .alpha-labl,
+.cp-app .HEX-labl,
+.cp-panel,
+.cp-resize
+{
   display: none;
 }
