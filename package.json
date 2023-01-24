@@ -4,13 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "rollup --config rollup.config.mjs --watch",
+    "start": "gulp default",
     "build": "rollup --config rollup.config.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "LAG1996",
   "license": "ISC",
   "dependencies": {
+    "jquery": "^3.6.3",
     "pixi.js": "^7.1.0"
   },
   "devDependencies": {

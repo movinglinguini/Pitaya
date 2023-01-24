@@ -2,7 +2,7 @@ import { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 
 export default {
-  input: 'js/index.js',
+  input: 'src/index.js',
   output: {
     dir: 'build',
     format: 'esm',
@@ -17,7 +17,8 @@ export default {
   watch: {
     clearScreen: true,
     include: [
-      'js/**',
+      'src/**',
+      'css/**',
       'index.html'
     ]
   }

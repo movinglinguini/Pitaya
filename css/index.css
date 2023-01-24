@@ -1,0 +1,8 @@
+#colorpicker-container {
+  position: relative;
+  width: fit-content;
+}
+
+.cp-exit {
+  display: none;
+}

@@ -1,11 +1,13 @@
 import { Application, Graphics } from "pixi.js";
 
+const eventHandlers = {
+  onPickColor: (colorPickerObj) => console.log(colorPickerObj), 
+};
+
+
 function main() {
   // add canvas
-  const app = new Application({
-    backgroundColor: 'white'
-  });
-  document.querySelector('#canvas-container').appendChild(app.view);
+  const app = initPixi($('#canvas-container'));
 
   /** 
    * Everything on the canvas will be padded so that the drawing is always contained in the canvas (i.e., is not bleeding out by a few pixels)
@@ -23,6 +25,19 @@ function main() {
   const grid = drawGrid(app.view.width - padding.left, app.view.height - padding.bottom, resolution);
   grid.position.set(padding.right, padding.top);
   app.stage.addChild(grid);
+
+  // initialize color picker
+  const colorPicker = initColorPicker(eventHandlers.onPickColor);
+  console.log(colorPicker);
+}
+
+/** Initializes the PIXI application */
+function initPixi(containerElement) {
+  const app = new Application({
+    backgroundColor: 'white'
+  });
+  containerElement.append(app.view);
+  return app;
 }
 
 /** Draws the grid that the squares will be drawn into */
@@ -50,4 +65,17 @@ function drawGrid(width, height, resolution) {
   return gridGraphics;
 }
 
-main();
+function initColorPicker(onPickColorCallback) {
+  const colorPicker = new ColorPicker({
+    appendTo: document.querySelector('#colorpicker-container'),
+  });
+
+  colorPicker.color.options.actionCallback = (e, action) => {
+    onPickColorCallback(colorPicker);
+  }
+}
+
+$.when($.ready)
+  .then(() => {
+    main();
+  });
