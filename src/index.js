@@ -1,109 +1,43 @@
-import { Application, Container, Graphics } from "pixi.js";
-import { initColorPicker } from "./color-picker";
+import p5 from 'p5';
+import LSystem from 'lindenmayer';
 
-function main() {
-  // add canvas
-  const app = initPixi($('#canvas-container'));
+/**
+ * Main setup function to be used by p5 instance.
+*/
+function setup(_p5) {
+  _p5.createCanvas(400, 400);
+  _p5.angleMode(_p5.RADIANS);
+  _p5.background(220);
 
-  /** 
-   * Everything on the canvas will be padded so that the drawing is always contained in the canvas (i.e., is not bleeding out by a few pixels)
-   * */
-  const padding = {
-    top: 5,
-    bottom: 10,
-    left: 10,
-    right: 5,
-  }
 
-  // draw the grid
-  /** @TODO - this should be specified in a config file. */
-  const resolution = 50;
-  const grid = drawGrid(app.view.width - padding.left, app.view.height - padding.bottom, resolution);
-  grid.position.set(padding.right, padding.top);
-  app.stage.addChild(grid);
-  // add the first drawing layer to the stage
-  initInteractionLayer(app.stage);
-  initLayer(app.stage);
-
-  // initialize color picker
-  const onPickColorCallback = ((colorPickerObj) => {
-    $('#colorpicker-output').text(JSON.stringify(colorPickerObj.color));
-
-  });
-  
-  initColorPicker(onPickColorCallback);
-}
-
-/** Initializes the PIXI application */
-function initPixi(containerElement) {
-  const app = new Application({
-    backgroundColor: 'white'
-  });
-  containerElement.append(app.view);
-  return app;
-}
-
-/** Draws the grid that the squares will be drawn into */
-function drawGrid(width, height, resolution) {
-  const cellWidth = width / resolution;
-  const cellHeight = height / resolution;
-
-  const gridGraphics = new Graphics();
-  
-  gridGraphics.lineStyle({
-    color: '#efefef',
-    width: 1,
+  const kochcurve = new LSystem({
+    axiom: 'F++F++F',
+    productions: { F: 'F-F++F-F' },
+    finals: {
+      '+': () => { _p5.rotate(Math.PI / 180 * 60) },
+      '-': () => { _p5.rotate(Math.PI / 180 * -60) },
+      'F': () => {
+        const newPosition = [0, 40/(kochcurve.iterations + 1)];
+        _p5.stroke('black');
+        _p5.line(0, 0, newPosition[0], newPosition[1]);
+        _p5.translate(...newPosition);
+      }
+    }
   });
 
-  for (let x = 0; x <= width; x += cellWidth) {
-    gridGraphics.moveTo(x, 0);
-    gridGraphics.lineTo(x, height);
-  }
-
-  for (let y = 0; y <= height; y += cellHeight ) {
-    gridGraphics.moveTo(0, y);
-    gridGraphics.lineTo(width, y);
-  }
-
-  return gridGraphics;
+  _p5.translate(_p5.width * 0.75, _p5.height * 0.25);
+  kochcurve.iterate(3);
+  kochcurve.final();
 }
 
-/** 
- * Adds a new layer to the stage.
- * 
- * @returns The index of the new layer.
- * */
-function initLayer(stage) {
-  if (!stage.__layers) {
-    stage.__layers = [];
-  }
+/**
+ * Main draw function to be used by p5 instance.
+ * @param {} _p5 
+ */
+function draw(_p5) { }
 
-  // init the new layer
-  const newLayer = new Graphics();
+const process = new p5((_p5) => {
+  _p5.setup = (() => setup(_p5));
+  _p5.draw = (() => draw(_p5));
+});
 
-  stage.__layers.push(
-    newLayer,
-  );
-
-  onSetActiveLayer(newLayer, stage);
-
-  stage.addChild(newLayer);
-
-  return stage.__layers.length - 1;
-}
-
-function initInteractionLayer(stage) {
-  $('canvas').on('mousedown', ((evt) => {
-    console.log(evt);
-  }));
-}
-
-/** Event Handlers */
-function onSetActiveLayer(layer, stage) {
-  stage.__activeLayer = layer;
-}
-
-$.when($.ready)
-  .then(() => {
-    main();
-  });
