@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "jquery": "^3.6.3",
+    "p5js": "^1.2.18",
     "pixi.js": "^7.1.0"
   },
   "devDependencies": {

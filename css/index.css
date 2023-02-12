@@ -3,7 +3,9 @@
   width: fit-content;
 }
 
+/** Force color picker styling **/
 .cp-app {
+  width: 307px !important;
   background-color: transparent !important;
 }
 
@@ -11,6 +13,7 @@
   display: none;
 }
 
+/** Turn off a bunch of color picker features. **/
 .cp-app .hsl-mode,
 .cp-app .hsv-h-butt,
 .cp-app .hsv-s-butt,
@@ -23,4 +26,12 @@
 .cp-resize
 {
   display: none;
+}
+
+.cp-opacity {
+  margin-top: 10px;
+}
+
+.cp-opacity .cp-opacity-slider {
+  border-color: black transparent !important;
 }

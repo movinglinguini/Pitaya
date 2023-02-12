@@ -23302,10 +23302,23 @@ const loadBitmapFont = {
 };
 extensions$1.add(loadBitmapFont);
 
-const eventHandlers = {
-  onPickColor: (colorPickerObj) => console.log(colorPickerObj), 
-};
+function initColorPicker(onPickColorCallback = (() => null)) {
+  const colorPicker = new ColorPicker({
+    mode: 'hsl-h',
+    size: 3,
+    noRGBr: true,
+    noRGBg: true,
+    noRGBb: true,
+    noResize: true,
+    appendTo: document.querySelector('#colorpicker-container'),
+  });
 
+  colorPicker.color.options.actionCallback = (e, action) => {
+    onPickColorCallback(colorPicker, e, action);
+  };
+
+  return colorPicker;
+}
 
 function main() {
   // add canvas
@@ -23327,10 +23340,17 @@ function main() {
   const grid = drawGrid(app.view.width - padding.left, app.view.height - padding.bottom, resolution);
   grid.position.set(padding.right, padding.top);
   app.stage.addChild(grid);
+  // add the first drawing layer to the stage
+  initInteractionLayer(app.stage);
+  initLayer(app.stage);
 
   // initialize color picker
-  const colorPicker = initColorPicker(eventHandlers.onPickColor);
-  console.log(colorPicker);
+  const onPickColorCallback = ((colorPickerObj) => {
+    $('#colorpicker-output').text(JSON.stringify(colorPickerObj.color));
+
+  });
+  
+  initColorPicker(onPickColorCallback);
 }
 
 /** Initializes the PIXI application */
@@ -23367,20 +23387,39 @@ function drawGrid(width, height, resolution) {
   return gridGraphics;
 }
 
-function initColorPicker(onPickColorCallback) {
-  const colorPicker = new ColorPicker({
-    mode: 'hsl-h',
-    size: 3,
-    noRGBr: true,
-    noRGBg: true,
-    noRGBb: true,
-    noResize: true,
-    appendTo: document.querySelector('#colorpicker-container'),
-  });
+/** 
+ * Adds a new layer to the stage.
+ * 
+ * @returns The index of the new layer.
+ * */
+function initLayer(stage) {
+  if (!stage.__layers) {
+    stage.__layers = [];
+  }
 
-  colorPicker.color.options.actionCallback = (e, action) => {
-    onPickColorCallback(colorPicker);
-  };
+  // init the new layer
+  const newLayer = new Graphics();
+
+  stage.__layers.push(
+    newLayer,
+  );
+
+  onSetActiveLayer(newLayer, stage);
+
+  stage.addChild(newLayer);
+
+  return stage.__layers.length - 1;
+}
+
+function initInteractionLayer(stage) {
+  $('canvas').on('mousedown', ((evt) => {
+    console.log(evt);
+  }));
+}
+
+/** Event Handlers */
+function onSetActiveLayer(layer, stage) {
+  stage.__activeLayer = layer;
 }
 
 $.when($.ready)
