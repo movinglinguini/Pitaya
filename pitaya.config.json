@@ -1,0 +1,6 @@
+{
+  "lsystem": { 
+    "name": "kochcurve",
+    "iterations": 3
+  }
+}

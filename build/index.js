@@ -587,6 +587,10 @@ LSystem.transformClassicCSProduction = transformClassicCSProduction;
 LSystem.transformClassicParametricAxiom = transformClassicParametricAxiom;
 LSystem.testClassicParametricSyntax = testClassicParametricSyntax;
 
+var lsystemConfig = JSON.parse(`{"axiom":"F++F++F","productions":{"F":"F-F++F-F"},"finals":{"+":"(p5Instance)=>p5Instance.rotate(Math.PI/180*60)","-":"(p5Instance)=>p5Instance.rotate(Math.PI/180*-60)","F":"(p5Instance,lsystem)=>{constnewPosition=[0,40/(lsystem.iterations+1)];p5Instance.stroke('black');p5Instance.line(0,0,newPosition[0],newPosition[1]);p5Instance.translate(...newPosition);}"}}`);
+
+let kochcurve = null;
+
 /**
  * Main setup function to be used by p5 instance.
 */
@@ -595,35 +599,51 @@ function setup(_p5) {
   _p5.angleMode(_p5.RADIANS);
   _p5.background(220);
 
+  console.log(lsystemConfig);
 
-  const kochcurve = new LSystem({
+  // 
+  let oldPosition = null;
+
+  kochcurve = new LSystem({
     axiom: 'F++F++F',
     productions: { F: 'F-F++F-F' },
     finals: {
       '+': () => { _p5.rotate(Math.PI / 180 * 60); },
       '-': () => { _p5.rotate(Math.PI / 180 * -60); },
       'F': () => {
-        const newPosition = [0, 40/(kochcurve.iterations + 1)];
+        const maxIter = kochcurve.iterations;
+        const i = _p5.frameCount;
+        const theta = (i / maxIter) * 2 * Math.PI;
+        const radius = 100;
+        const newPosition = [
+          radius * Math.cos(theta),
+          radius * Math.sin(theta),
+        ];
         _p5.stroke('black');
-        _p5.line(0, 0, newPosition[0], newPosition[1]);
-        _p5.translate(...newPosition);
+        if (oldPosition) {
+          _p5.line(...oldPosition, ...newPosition);
+        }
+        oldPosition = newPosition;
       }
     }
   });
 
-  _p5.translate(_p5.width * 0.75, _p5.height * 0.25);
   kochcurve.iterate(3);
-  kochcurve.final();
 }
 
 /**
  * Main draw function to be used by p5 instance.
  * @param {} _p5 
  */
-function draw(_p5) { }
+function draw(_p5) {
+  _p5.translate(_p5.width / 2, _p5.height / 2);
+  if (_p5.frameCount <= 100) {
+    kochcurve.final();
+  }
+}
 
 new p5((_p5) => {
   _p5.setup = (() => setup(_p5));
-  _p5.draw = (() => draw());
+  _p5.draw = (() => draw(_p5));
 });
 //# sourceMappingURL=index.js.map

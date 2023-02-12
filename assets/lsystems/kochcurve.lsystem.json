@@ -1,0 +1,11 @@
+{
+  "axiom": "kochcurve",
+  "productions": {
+    "F": "kochcurve.F"
+  },
+  "finals": {
+    "+": "kochcurve.plus",
+    "-": "kochcurve.minus",
+    "F": "kochcurve.F"
+  }
+}

@@ -1,0 +1,1 @@
+export default (p5Instance) => p5Instance.rotate(Math.PI / 180 * 60);
