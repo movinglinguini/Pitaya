@@ -19,7 +19,8 @@ export default {
     include: [
       'src/**',
       'css/**',
-      'index.html'
+      'index.html',
+      'pitaya.config.json',
     ]
   }
 };

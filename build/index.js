@@ -587,7 +587,13 @@ LSystem.transformClassicCSProduction = transformClassicCSProduction;
 LSystem.transformClassicParametricAxiom = transformClassicParametricAxiom;
 LSystem.testClassicParametricSyntax = testClassicParametricSyntax;
 
-var lsystemConfig = JSON.parse(`{"axiom":"F++F++F","productions":{"F":"F-F++F-F"},"finals":{"+":"(p5Instance)=>p5Instance.rotate(Math.PI/180*60)","-":"(p5Instance)=>p5Instance.rotate(Math.PI/180*-60)","F":"(p5Instance,lsystem)=>{constnewPosition=[0,40/(lsystem.iterations+1)];p5Instance.stroke('black');p5Instance.line(0,0,newPosition[0],newPosition[1]);p5Instance.translate(...newPosition);}"}}`);
+/*Auto generated file. Do not edit.*/
+  var lsystemConfig = {axiom:"F++F++F",productions:{'F':"F-F++F-F",},finals:{'+':(p5Instance) => p5Instance.rotate(Math.PI / 180 * 60),'-':(p5Instance) => p5Instance.rotate(Math.PI / 180 * -60),'F':(p5Instance, lsystem) => {
+  const newPosition = [0, 40/(lsystem.iterations + 1)];
+  p5Instance.stroke('black');
+  p5Instance.line(0, 0, newPosition[0], newPosition[1]);
+  p5Instance.translate(...newPosition);
+},},iterations:2,};
 
 let kochcurve = null;
 
@@ -600,35 +606,21 @@ function setup(_p5) {
   _p5.background(220);
 
   console.log(lsystemConfig);
-
-  // 
-  let oldPosition = null;
+  // Object.keys(lsystemConfig).forEach(k => {
+  //   finals[k] = 
+  // });
 
   kochcurve = new LSystem({
-    axiom: 'F++F++F',
-    productions: { F: 'F-F++F-F' },
-    finals: {
-      '+': () => { _p5.rotate(Math.PI / 180 * 60); },
-      '-': () => { _p5.rotate(Math.PI / 180 * -60); },
-      'F': () => {
-        const maxIter = kochcurve.iterations;
-        const i = _p5.frameCount;
-        const theta = (i / maxIter) * 2 * Math.PI;
-        const radius = 100;
-        const newPosition = [
-          radius * Math.cos(theta),
-          radius * Math.sin(theta),
-        ];
-        _p5.stroke('black');
-        if (oldPosition) {
-          _p5.line(...oldPosition, ...newPosition);
-        }
-        oldPosition = newPosition;
-      }
-    }
+    axiom: lsystemConfig.axiom,
+    productions: lsystemConfig.productions,
+    finals: {},
+  });
+  Object.keys(lsystemConfig.finals).forEach(k => {
+    const func = lsystemConfig.finals[k];
+    kochcurve.setFinal(k, () => func(_p5, kochcurve));
   });
 
-  kochcurve.iterate(3);
+  kochcurve.iterate(lsystemConfig.iterations);
 }
 
 /**

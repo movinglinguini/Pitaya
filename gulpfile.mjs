@@ -19,28 +19,30 @@ async function buildLSystem(cb) {
   json = fs.readFileSync(`./assets/lsystems/${config.lsystem.name}.lsystem.json`, { encoding: 'utf-8' });
   const lsystemConfig = JSON.parse(json);
   let l = '{';
-  l += 'axiom:' + (await import(`./assets/axioms/${lsystemConfig.axiom}.axiom.mjs`)).default + ',';
+  l += 'axiom:"' + (await import(`./assets/axioms/${lsystemConfig.axiom}.axiom.mjs`)).default + '",';
   l += 'productions:{';
   await Promise.all(
     Object.keys(lsystemConfig.productions).map(async (k) => {
       const fileName = lsystemConfig.productions[k];
-      l += `${k}:` + (await import(`./assets/productions/${fileName}.production.mjs`)).default + ',';
+      l += `'${k}':"` + (await import(`./assets/productions/${fileName}.production.mjs`)).default + '",';
     })
   );
   l+='},'
   l += 'finals:{';
-  await Promise.all(
+  (await Promise.all(
     Object.keys(lsystemConfig.finals).map(async (k) => {
       const fileName = lsystemConfig.finals[k];
-      l += `${k}:` + (await import(`./assets/finals/${fileName}.final.mjs`)).default.toString();
+      return `'${k}':` + (await import(`./assets/finals/${fileName}.final.mjs`)).default.toString() + ',';
     })
-  );
-  l += '}';
-  l += '};'
+  )).forEach(s => l += s);
+  l += '},';
+  l += `iterations:${config.lsystem.iterations},`;
+  l += '};';
 
   fs.writeFileSync(
     './src/lsystem.config.js',
-    `export default ${l}`.trim()
+    `/*Auto generated file. Do not edit.*/
+  export default ${l}`.trim()
   );
 
   cb();
