@@ -1,54 +1,110 @@
-import p5 from 'p5';
-import LSystem from 'lindenmayer';
-import lsystemConfig from './lsystem.config';
+import { createMachine } from 'xstate';
+import { PitayaRuleset } from './components/ruleset.class';
+import utils from './utils';
 
-let kochcurve = null;
+(() => {
+  const rulesets = new Set();
+  const stateMachines = [];
 
-/**
- * Main setup function to be used by p5 instance.
-*/
-function setup(_p5) {
-  _p5.createCanvas(400, 400);
-  _p5.angleMode(_p5.RADIANS);
-  _p5.background(220);
+  /**
+   * Adds a ruleset to Pitaya.
+   */
+  function addRuleset(ruleset) {
+    // parse out the ruleset into a state machine
+    rulesets.add(ruleset);
+    const stateMachineConfig = {
+      id: ruleset.name,
+      initial: ruleset.plotter.initialState || utils.choose(Object.keys(ruleset.plotter.states)),
+      states: {},
+    };
 
-  console.log(lsystemConfig);
+    // build out states and transition rules
+    Object.keys(ruleset.plotter.states).forEach((state) => {
+      const neighbors = ruleset.plotter.states[state];
+      const transitionRules = {
+        on: {},
+      };
 
-  // 
-  let oldPosition = null;
+      neighbors.forEach(nextState => {
+        // transitionRuleKeys.add(`${state}->${nextState}`);
+        const transitionRuleKey = `${state}->${nextState}`;
+        const transitionConfig = {
+          target: nextState,
+          actions: [],
+        };
 
-  const finals = {};
-  // Object.keys(lsystemConfig).forEach(k => {
-  //   finals[k] = 
-  // });
+        if (ruleset.plotter.moves[nextState]) {
+          transitionConfig.actions.push(nextState);
+        }
 
-  kochcurve = new LSystem({
-    axiom: lsystemConfig.axiom,
-    productions: lsystemConfig.productions,
-    finals: {},
-  });
-  Object.keys(lsystemConfig.finals).forEach(k => {
-    const func = lsystemConfig.finals[k];
-    kochcurve.setFinal(k, () => func(_p5, kochcurve));
-  });
+        if (ruleset.plotter.strokes[transitionRuleKey]) {
+          transitionConfig.actions.push(transitionRuleKey);
+        }
 
-  kochcurve.iterate(lsystemConfig.iterations);
-}
+        // if there is a universal stroke, add its key
+        if (ruleset.plotter.strokes['*']) {
+          transitionConfig.actions.push('*');
+        }
 
-/**
- * Main draw function to be used by p5 instance.
- * @param {} _p5 
- */
-function draw(_p5) {
-  _p5.translate(_p5.width / 2, _p5.height / 2);
-  if (_p5.frameCount <= 100) {
-    kochcurve.final();
+        transitionRules.on[transitionRuleKey] = transitionConfig;
+      });
+
+      stateMachineConfig.states[state] = transitionRules;
+    });
+
+    // add strokes to the list of actions
+    const actions = {};
+    Object.keys(ruleset.plotter.moves).forEach(moveKey => {
+      actions[moveKey] = () => {
+        const moveFn = ruleset.plotter.moves[moveKey];
+        const plotterLastPosition = ruleset.plotter.position.clone();
+        const plotterNextPosition = moveFn(plotterLastPosition);
+        ruleset.plotter._lastPosition = plotterLastPosition;
+        ruleset.plotter._position = plotterNextPosition;
+      };
+    });
+
+    Object.keys(ruleset.plotter.strokes).forEach(strokeKey => {
+      actions[strokeKey] = () => {
+        const strokeFn = ruleset.plotter.strokes[strokeKey];
+        strokeFn(ruleset.plotter._lastPosition, ruleset.plotter.position);
+      };
+    });
+
+    const stateMachineActions = { actions };    
+    const newMachine = createMachine(stateMachineConfig, stateMachineActions);
+    newMachine._currentState = newMachine.initialState;
+    stateMachines.push(newMachine);
   }
-}
 
-const process = new p5((_p5) => {
-  _p5.setup = (() => setup(_p5));
-  _p5.draw = (() => draw(_p5));
-});
+  function setLibrary(libraryInstance, libraryName) {
+    Pitaya[libraryName] = libraryInstance;
+    Pitaya.library = libraryInstance;
+  }
 
+  function transition() {
+    Pitaya._stateMachines.forEach(sm => {
+      const event = utils.choose(sm._currentState.nextEvents);
+      const newState = sm.transition(sm._currentState.value, event);
 
+      // execute transition actions
+      newState.actions.forEach(act => {
+        act.exec();
+      })
+      
+      sm._currentState = newState;
+    });
+  }
+
+  window.Pitaya = {
+    _rulesets: rulesets,
+    _stateMachines: stateMachines,
+    library: null,
+    utils,
+    addRuleset,
+    setLibrary,
+    transition,
+  };
+
+  window.PitayaRuleset = PitayaRuleset;
+})();

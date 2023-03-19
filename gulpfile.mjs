@@ -10,6 +10,7 @@ function runServe(cb) {
   return exec('browser-sync start --server --files build/*.js');
 }
 
+/** @deprecated **/
 async function buildLSystem(cb) {
   let json = fs.readFileSync('./pitaya.config.json', { encoding: 'utf-8' });
   const config = JSON.parse(json);
@@ -48,7 +49,7 @@ async function buildLSystem(cb) {
   cb();
 }
 
-const defaultTask = gulp.parallel(buildLSystem, runRollup, runServe);
+const defaultTask = gulp.parallel(runRollup, runServe);
 
 gulp.task(
   'default', defaultTask

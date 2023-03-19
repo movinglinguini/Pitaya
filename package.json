@@ -1,6 +1,6 @@
 {
   "name": "pitaya",
-  "version": "1.0.0",
+  "version": "0.0.2",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -14,12 +14,14 @@
     "jquery": "^3.6.3",
     "lindenmayer": "^1.5.4",
     "p5": "^1.5.0",
-    "pixi.js": "^7.1.0"
+    "pixi.js": "^7.1.0",
+    "xstate": "^4.37.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^24.0.0",
     "@rollup/plugin-node-resolve": "^15.0.1",
     "gulp": "^4.0.2",
-    "rollup": "^3.10.1"
+    "rollup": "^3.10.1",
+    "rollup-plugin-inject-process-env": "^1.3.1"
   }
 }
