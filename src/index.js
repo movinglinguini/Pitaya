@@ -26,7 +26,6 @@ import utils from './utils';
       };
 
       neighbors.forEach(nextState => {
-        // transitionRuleKeys.add(`${state}->${nextState}`);
         const transitionRuleKey = `${state}->${nextState}`;
         const transitionConfig = {
           target: nextState,

@@ -24,8 +24,17 @@ export class Plotter {
     this._position.components = components;
   }
 
+  get strokes() {
+    return {...this._strokes};
+  }
+
+  set strokes(strokes) {
+    this._strokes = {...strokes};
+  }
+
   constructor() {
     this._position = new Vector(0, 0);
+    this._strokes = {};
 
     this.$beforeStroke = new Signal();
     this.$afterStroke = new Signal();

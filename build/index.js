@@ -3442,8 +3442,17 @@ class Plotter {
     this._position.components = components;
   }
 
+  get strokes() {
+    return {...this._strokes};
+  }
+
+  set strokes(strokes) {
+    this._strokes = {...strokes};
+  }
+
   constructor() {
     this._position = new Vector(0, 0);
+    this._strokes = {};
 
     this.$beforeStroke = new Signal();
     this.$afterStroke = new Signal();
@@ -3542,8 +3551,37 @@ var random$1 = {
   choose,
 };
 
+function cartToPolar(x, y) {
+  return {
+    phi: Math.atan2(y, x),
+    radius: Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)),
+  };
+}
+
+function polarToCart(phi, radius) {
+  return {
+    x: radius * Math.cos(phi),
+    y: radius * Math.sin(phi)
+  };
+}
+
+var polarFunctions = {
+  cartToPolar,
+  polarToCart,
+};
+
+function clamp(val, min, max) {
+  return Math.min(max, Math.max(min, val));
+}
+
+var numberFunction = {
+  clamp,
+};
+
 var functions = {
   ...random$1,
+  ...polarFunctions,
+  ...numberFunction,
 };
 
 var utils = {
@@ -3575,7 +3613,6 @@ var utils = {
       };
 
       neighbors.forEach(nextState => {
-        // transitionRuleKeys.add(`${state}->${nextState}`);
         const transitionRuleKey = `${state}->${nextState}`;
         const transitionConfig = {
           target: nextState,
