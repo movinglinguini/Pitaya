@@ -2,7 +2,7 @@ const circleRuleset = new PitayaRuleset();
 
 // basic setup
 circleRuleset.name = 'Blood Circle';
-circleRuleset.canvas.height = 1040;
+circleRuleset.canvas.height = 2096;
 circleRuleset.canvas.width = circleRuleset.canvas.height * 1.33;
 
 circleRuleset.plotter.states = {
@@ -43,7 +43,7 @@ circleRuleset.plotter.strokes = {
     const fromPolar = Pitaya.utils.cartToPolar(from.x, from.y);
     const toPolar = Pitaya.utils.cartToPolar(to.x, to.y);
     p5_.push();
-    p5_.stroke('#630800');
+    p5_.stroke('#1E0200');
     p5_.strokeWeight(p5_.noise(Date.now()) * 2.5)
     p5_.noFill();
     p5_.arc(...circleRuleset.plotter.centerPosition, toPolar.radius, toPolar.radius, fromPolar.phi, toPolar.phi);
@@ -116,7 +116,7 @@ lineRuleset.plotter.strokes = {
     const to_ = to.clone().add(center);
     console.log(from_.components, to_.components);
     p5_.push();
-    p5_.stroke('#630800');
+    p5_.stroke('#1E0200');
     p5_.strokeWeight(1);
     p5_.line(from_.x, from_.y, to_.x, to_.y);
     p5_.line(from_.x + 25, from_.y + 25, to_.x + 25, to_.y + 25);
@@ -129,7 +129,7 @@ lineRuleset.plotter.strokes = {
     const to_ = to.clone().add(center);
     console.log(from_.components, to_.components);
     p5_.push();
-    p5_.stroke('#630800');
+    p5_.stroke('#1E0200');
     p5_.strokeWeight(2);
     p5_.line(from_.x, from_.y, to_.x, to_.y);
     p5_.line(from_.x - 15, from_.y - 15, to_.x - 15, to_.y - 15);
@@ -138,17 +138,33 @@ lineRuleset.plotter.strokes = {
 }
 
 new p5((p5_) => {
+  let isTextureDrawn = false;
+  const pointSize = 5;
+
   Pitaya.setLibrary(p5_);
   Pitaya.addRuleset(circleRuleset);
   Pitaya.addRuleset(lineRuleset);
 
   p5_.setup = () => {
     p5_.createCanvas(circleRuleset.canvas.width, circleRuleset.canvas.height);
-    p5_.background('#C20F00');
+    p5_.background('#4D0600');
   }
 
   p5_.draw = () => {
-    Pitaya.transition();
+    if (isTextureDrawn) {
+      Pitaya.transition();
+    } else {
+      p5_.push();
+      for (let x = 0; x < circleRuleset.canvas.width; x += pointSize) {
+        for (let y = 0; y < circleRuleset.canvas.height; y+= pointSize) {
+          p5_.stroke(`rgba(0, 0, 0, ${p5_.noise(Date.now()) * 0.1})`)
+          p5_.strokeWeight(pointSize);
+          p5_.point(x, y);
+        }
+      }
+      p5_.pop();
+      isTextureDrawn = true;
+    }
   }
 });
 
